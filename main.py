@@ -8,6 +8,7 @@ import serial
 import serial.rs485
 import serial_asyncio
 import sys
+import time
 
 from typing import Optional, Tuple, List
 
@@ -24,8 +25,8 @@ class AcmedaConnection(object):
         A connection to one or more Acmeda hubs on the given RS485 device.
         Timeout is how long to wait for any single response.
         """
-        self.device = "/dev/ttyUSB1"
-        self.ser = serial.Serial(port=DEVICE, baudrate=9600, timeout=2)   # 9600 8N1 are the defaults
+        self.device = device
+        self.ser = serial.Serial(port=device, baudrate=9600, timeout=2)   # 9600 8N1 are the defaults
 
         # flush buffers
         self.ser.reset_input_buffer()
@@ -123,13 +124,15 @@ def main():
     for hub_id, hub_data in hub_info:
         for motor, motor_data in motor_info:
             conn.send_motor_cmd(hub=hub_id, motor=motor, cmd=b'r?')
-            # In practice, each motor seems to return multiple responses, perhaps because 
-            # this is used while it's moving?
-            print("  Hub %s Motor %s: %s" % (hub_id, motor, conn.get_response()))
+            # In practice, each motor seems to return multiple responses, 
+            # perhaps because this is used while it's moving?
+            # So we wait for them.
+            print("  Hub %s Motor %s: %s" % (hub_id, motor, conn.get_responses()))
 
-    print("Anything left?")
+    print("Anything left?  (Ctrl-C to interrupt)")
     while True:
         print(conn.get_response())
+
 
 if __name__ == '__main__':
     main()
