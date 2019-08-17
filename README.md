@@ -1,6 +1,6 @@
 # Experiments with controlling Rollease Acmeda blinds from Python & Linux
 
-*I'll turn this into a proper async library in due course, but these are just some quick experiments and notes.  It's mostly public at present just in case anybody else wants to experiement with it sooner than I can!  This requires Python 3.5 or later.*
+*I'll turn this into a proper async library in due course, but these are just some quick experiments and notes.  It's mostly public at present just in case anybody else wants to experiement with it sooner than I can!  This requires Python 3.6 or later.*
 
 The Rollease Acmeda motorised blinds (or 'shades', depending on where you live) have a hub which communicates with the outside world, provides timer-based operation, and allows control using their phone app.  It connects to wifi and to the 433 MHz radio used by the blinds and the remotes.  There is no public API that I am aware of for accessing the hub over the network.
 
@@ -14,6 +14,12 @@ I have successfully tried basic communication under Linux using two different RS
 
 If you get permission errors when accessing the port, you probably need to add yourself to the 'dialout' group, and log out and back in again.
 
+On a typical Linux system,  you may find the devices start up or are recognised in a different order, so the thing that was ttyUSB0 might become ttyUSB1 on the next reboot. So a better way to specify the devices, if it's available, is to use one of the symbolic links under `/dev/serial/by-id/`.  These should automatically point to the right place.  On my system, the Wingoneer USB adapter appears as
+
+    /dev/serial/by-id/usb-Silicon_Labs_CP2104_USB_to_UART_Bridge_Controller_018DF044-if00-port0
+
+It's more verbose, but should be more reliable.
+
 When making up cables, it's worth noting that some manufacturers use letters A & B to describe the two signal lines in RS485 and some use '+' and '-', but not always consistently.  You should be safe to swap '+' and '-' if your first attempt doesn't succeed.  Ground, however, is always ground!  I debugged mine by running minicom or miniterm.py to look at the port, e.g.
 
     miniterm.py --raw /dev/ttyUSB1 9600
@@ -26,7 +32,7 @@ The `test_connection.py` simply sends a request asking the hub to identify itsel
 
 which would indicate that the ID of your hub is '626'.
 
-The `main.py` script starts to impose a bit of structure and does a bit more.  It currently just looks for hubs (because more than one could theoretically be connected on the RS485 bus), and then asks each one for the motors it knows about.  It then asks each motor for its current position.
+The `main.py` script starts to impose a bit of structure and does a bit more.  It currently just looks for hubs (because more than one could theoretically be connected on the RS485 bus), and then asks each one for the motors it knows about.  It then asks each motor for its current position.  It does this with async calls, though those aren't needed yet.
 
 Some things to note:
 
@@ -36,6 +42,6 @@ Some things to note:
 
 More in due course.  Contributions welcome!
 
-Quentin Stafford-Fraser - https://quentinsf.com - March 2019
+Quentin Stafford-Fraser - https://quentinsf.com - Aug 2019
 
 

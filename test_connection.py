@@ -5,7 +5,8 @@
 
 import serial
 
-DEVICE = "/dev/ttyUSB1"
+DEVICE = "/dev/serial/by-id/usb-Silicon_Labs_CP2104_USB_to_UART_Bridge_Controller_018DF044-if00-port0"
+
 
 ser = serial.Serial(port=DEVICE, baudrate=9600, timeout=2)   # 9600 8N1 are the defaults
 
