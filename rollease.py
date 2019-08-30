@@ -198,7 +198,7 @@ class Motor:
     # Haven't bothered with the motor limits etc yet
 
 class AcmedaConnection(object):
-    def __init__(self, device: str, timeout: int = 5, callback=None):
+    def __init__(self, device: str, timeout: int = 10, callback=None):
         """
         A connection to one or more Acmeda hubs on the given RS485 device.
         Timeout is how long to wait for any single response.
@@ -294,16 +294,17 @@ class AcmedaConnection(object):
         party.
         """
 
-        log.info("Watching for updates")
-        async for hub, delim, resp in self.response_iter():
-            # If this is a hub we haven't seen before,
-            # create it.
+        while True:
+            log.info("Watching for serial updates")
+            async for hub, delim, resp in self.response_iter():
+                # If this is a hub we haven't seen before,
+                # create it.
 
-            if hub not in self.hubs:
-                self.hubs[hub] = Hub(self, hub)
-            
-            self.hubs[hub].handle_uplink(delim, resp)    
-            # print(f"  Hub {hub} response: {resp}")
+                if hub not in self.hubs:
+                    self.hubs[hub] = Hub(self, hub)
+                
+                self.hubs[hub].handle_uplink(delim, resp)    
+                # print(f"  Hub {hub} response: {resp}")
 
 
     async def request_hub_info(self):

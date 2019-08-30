@@ -24,14 +24,19 @@ MQTT_SET_POSITION_TOPIC = "set_position"
 
 logging.basicConfig()
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 
 async def monitor_mqtt_requests(hub, mqtt_client):
     # Subscribe to mqtt topics for motors
 
-    await mqtt_client.subscribe([
-        (f'{MQTT_TOPIC_ROOT}/{motor_addr}/#', QOS_1) for motor_addr in hub.motors
-    ])
+    await mqtt_client.subscribe(
+        [
+            (f'{MQTT_TOPIC_ROOT}/{motor_addr}/{MQTT_COMMAND_TOPIC}', QOS_1) for motor_addr in hub.motors
+        ] + [
+            (f'{MQTT_TOPIC_ROOT}/{motor_addr}/{MQTT_SET_POSITION_TOPIC}', QOS_1) for motor_addr in hub.motors
+        ]
+
+    )
 
     while True:
         log.debug("Waiting for MQTT messages")
@@ -44,17 +49,21 @@ async def monitor_mqtt_requests(hub, mqtt_client):
 
         log.info("MQTT received %s => %s", topic, payload)
         if topic.startswith(MQTT_TOPIC_ROOT):
-            motor, subtopic = topic[len(MQTT_TOPIC_ROOT)+1:].split('/')
-            log.info(f"  motor {motor} subtopic {subtopic}")
-            if motor in hub.motors:
+            motor_addr, subtopic = topic[len(MQTT_TOPIC_ROOT)+1:].split('/')
+            log.info(f"  motor {motor_addr} subtopic {subtopic}")
+            if motor_addr in hub.motors:
+                motor = hub.motors[motor_addr]
                 if subtopic == MQTT_COMMAND_TOPIC:
                     if payload == "CLOSE":
-                        await hub.motors[motor].request_close()
+                        await motor.request_close()
                     elif payload == "OPEN":
-                        await hub.motors[motor].request_open()
+                        await motor.request_open()
                     elif payload == "STOP":
-                        await hub.motors[motor].request_stop()
-                    await hub.motors[motor].request_current_position()
+                        await motor.request_stop()
+                elif subtopic == MQTT_SET_POSITION_TOPIC:
+                    await motor.request_move_percent(int(payload))
+                else:
+                    log.warning("Unexpected topic: %s, payload %s", topic, payload)
             else:
                 log.warning("Request for unknown motor {motor}")
         else:
@@ -71,7 +80,7 @@ async def update_mqtt_positions(hub, mqtt_client):
             if travel_pc is not None:
                 position = str(travel_pc).encode()
                 topic = f"{MQTT_TOPIC_ROOT}/{motor_addr}/{MQTT_POSITION_TOPIC}"
-                log.debug("Sending position %s to topic %s", position, topic)
+                log.debug("  Sending position %s to topic %s", position, topic)
                 message = await mqtt_client.publish( topic, position )
 
 
@@ -85,10 +94,10 @@ async def main():
         if travel_pc is not None:
             position = str(travel_pc).encode()
             topic = f"{MQTT_TOPIC_ROOT}/{motor.addr}/{MQTT_POSITION_TOPIC}"
-            log.debug("Sending position %s to topic %s", position, topic)
+            log.debug("Sending updated position %s to topic %s", position, topic)
             message = await mqtt_client.publish( topic, position )
 
-    conn = rollease.AcmedaConnection(device=DEVICE, timeout=3, callback=update_callback)
+    conn = rollease.AcmedaConnection(device=DEVICE, callback=update_callback)
     await conn.request_hub_info()
     
     await asyncio.sleep(8)

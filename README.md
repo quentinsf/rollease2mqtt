@@ -1,6 +1,6 @@
 # Controlling Rollease Acmeda blinds from Python & Linux
 
-*My plan is to turn this into a proper utility in due course, probably as a gateway allowing the blinds to be controlled via MQTT.  At this stage, though, these are some experiments and notes.   This requires Python 3.7 or later, but would not be hard to backport to 3.6 if needed.*
+*My plan is to turn this into a proper gateway allowing the blinds to be controlled via MQTT.  At this stage, though, these are some experiments and notes.   This requires Python 3.7 or later, but would not be hard to backport to 3.6 if needed.*
 
 ## Background
 
@@ -60,9 +60,24 @@ The motors controlled by a hub also have individual addresses, typically '001', 
 
 ## Running the software
 
-At present, the main.py script just connects to the hub, finds the motors, asks about their position, and monitors them for changes. 
+At present, the main.py script connects to an MQTT broker, connects to the hub, finds the motors, asks about their position, and monitors them for changes. It feeds position updates to MQTT, and receives commands from it which it then turns into up/down/stop/set_position requests. 
 
-It depends on some packages in requirements.txt, so the best way to run it is probably in a virtualenv:
+I have managed to control my blinds from Home Assistant, where they are defined, for example, as follows:
+
+    cover
+      - platform: mqtt
+        name: "Bedroom front"
+        command_topic: "home-assistant/cover/007/set"
+        position_topic: "home-assistant/cover/007/position"
+        set_position_topic: "home-assistant/cover/007/set_position"
+        payload_open: "OPEN"
+        payload_close: "CLOSE"
+        payload_stop: "STOP"
+        optimistic: false
+        position_open: 0
+        position_closed: 100
+
+The program depends on some packages in requirements.txt, so the best way to run it is probably in a virtualenv:
 
     python3 -m venv env
     env/bin/python3 -m pip install -r requirements.txt
