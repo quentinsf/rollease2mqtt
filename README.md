@@ -1,6 +1,6 @@
 # Controlling Rollease Acmeda blinds from Python & Linux
 
-*My plan is to turn this into a proper utility in due course, probably as a gateway allowing the blinds to be controlled via MQTT.  At this stage, though, these are some experiments and notes.   This requires Python 3.6 or later.*
+*My plan is to turn this into a proper utility in due course, probably as a gateway allowing the blinds to be controlled via MQTT.  At this stage, though, these are some experiments and notes.   This requires Python 3.7 or later, but would not be hard to backport to 3.6 if needed.*
 
 ## Background
 

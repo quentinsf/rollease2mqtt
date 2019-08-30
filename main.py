@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 #
 # Experiments with talking to Rollease Acmeda hub over RS485
-# Requires Python 3.6 or later
+# Requires Python 3.7 or later
 
 import asyncio
 import logging
