@@ -240,8 +240,6 @@ async def main():
 
     # print("Move motor 2 to 50%")
     # await conn.send_motor_cmd(hub, "002", cmd="m", data="050")
-    # async for hub, resp in conn.response_iter():
-    #     print("  resp:", resp)
 
     
     await asyncio.sleep(30)

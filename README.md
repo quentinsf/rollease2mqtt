@@ -32,7 +32,7 @@ It's more verbose, but should be more reliable.   Copy the full pathname and pas
 
 ## An RS485 cable
 
-You will need to connect your RS485 adapter to the port on the hub using what is technically a '4p4c connector'.  This is the thing traditionally used to connect phone handsets to their bases, and you should note that it is smaller than an RJ45 ethernet connector or an RJ11 phone socket connector.  I bought a phone handset cable and cut it in half.
+You will need to connect your RS485 adapter to the port on the hub using what is technically a '4p4c connector'.  This is the thing traditionally used to connect phone handsets to their bases, and you should note that it is smaller than an RJ45 ethernet connector or an RJ11 phone socket connector.  I bought a phone handset cable and cut it in half, then connected it to a Wingoneer adapter.  The cable was fairly delicate, so I added plenty of strain-relief!
 
 ![cable](docs/cable-400.jpg)
 
@@ -42,7 +42,7 @@ Yes, I know, it's not pretty, but it does the job well!
 
 ![connector](docs/connector-400.jpg)
 
-When making up cables, it's worth noting that some manufacturers use letters A & B to describe the two signal lines in RS485 and some use '+' and '-', but not always consistently.  You should be safe to swap '+' and '-' if your first attempt doesn't succeed.  Ground, however, is always ground!  I debugged mine by running minicom or miniterm.py to look at the port, e.g.
+When making up RS485 cables, it's worth noting that some manufacturers use letters A & B to describe the two signal lines, and some use '+' and '-', but not always consistently.  You should be safe to swap '+' and '-' if your first attempt doesn't succeed.  Ground, however, is always ground!  I debugged mine by running minicom or miniterm.py to look at the port, e.g.
 
     miniterm.py --raw /dev/ttyUSB1 9600
 
@@ -52,17 +52,26 @@ The `test_connection.py` simply sends a request asking the hub to identify itsel
 
     b'!626V;'
 
-which would indicate that the ID of your hub is '626'.
+which would indicate that the ID (or 'address') of your hub is '626'.  (It's possible to connect more than one hub on a single RS485 bus.) 
 
-The `main.py` script starts to impose a bit of structure and does a bit more.  It currently just looks for hubs (because more than one could theoretically be connected on the RS485 bus), and then asks each one for the motors it knows about.  It then asks each motor for its current position.  It does this with async calls, though those aren't needed yet.
+The motors controlled by a hub also have individual addresses, typically '001', '002' etc.  If you have the phone app (which is called 'Automate' - how many different brands do these guys need?), you can go to the edit screen for one of your blinds and see the same information there:
 
-Some things to note:
+![ios screenshot](docs/ios-400.jpg)
 
-* It doesn't find *all* of my motors.  I'm not yet sure why.  I have a mix of Roman and roller blinds.
-* You can't always know how many responses will come back for a particular request.  When I send the command to ask for the motor position, I get two or three, for example, from each motor.  There's a certain amount of waiting for timeouts.
-* In the middle of my experiments, the timer that closes my blinds in the evening kicked in.  The hub didn't respond while the blinds were moving.
+## Running the software
 
-More in due course.  Contributions welcome!
+At present, the main.py script just connects to the hub, finds the motors, asks about their position, and monitors them for changes. 
+
+It depends on some packages in requirements.txt, so the best way to run it is probably in a virtualenv:
+
+    python3 -m venv env
+    env/bin/python3 -m pip install -r requirements.txt
+
+and then
+
+    env/bin/python3 main.py
+
+More coming soon.  Contributions welcome!
 
 Quentin Stafford-Fraser - https://quentinsf.com - Aug 2019
 
