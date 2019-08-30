@@ -3,3 +3,5 @@ venv
 .env
 .venv
 
+.mypy_cache
+.vscode
