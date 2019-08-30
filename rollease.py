@@ -6,10 +6,6 @@
 import asyncio
 import logging
 import aioserial
-import re
-import serial
-import sys
-import time
 
 from typing import Optional, Tuple, List, Dict
 
@@ -21,14 +17,18 @@ log.setLevel(logging.INFO)
 
 # Things that might go wrong:
 
+
 class Error(Exception):
     pass
+
 
 class FormatError(Error):
     pass
 
+
 class TimeoutError(Error):
     pass
+
 
 class Hub:
     def __init__(self, conn: "AcmedaConnection", addr: str):
@@ -64,17 +64,15 @@ class Hub:
         and the rest of the resonse.
         """
 
-        if delim == 'V':
+        if delim == "V":
             log.info("Got address message from hub %s", self.addr)
         elif delim == "A":
             log.warning("We don't handle hub test/address change responses yet")
-        elif delim == 'D':
+        elif delim == "D":
             log.debug("Received motor message %s %s", delim, resp)
             self.handle_motor_info(resp)
 
-    def _parse_motor_info(
-        self, info: str
-    ) -> Tuple[str, str, str]:
+    def _parse_motor_info(self, info: str) -> Tuple[str, str, str]:
         motor_addr = info[:3]
         command, remainder = None, None
         command = info[3]
@@ -91,7 +89,6 @@ class Hub:
 
 
 class Motor:
-
     def __init__(self, hub: Hub, addr: str):
         log.info(f"Registering motor {addr} on {hub}")
         self.hub = hub
@@ -113,11 +110,11 @@ class Motor:
     def handle_uplink(self, command: str, remainder: str):
         if command == "U":
             log.error("Can't get position/stroke not set")
-        elif command in ('>', '<') and remainder is not None:
+        elif command in (">", "<") and remainder is not None:
             self.handle_motion_position_info(remainder)
-        elif command == 'r' and remainder is not None:
+        elif command == "r" and remainder is not None:
             self.handle_stop_position_info(remainder)
-        elif command == 'v' and remainder is not None:
+        elif command == "v" and remainder is not None:
             self.handle_version_info(remainder)
         else:
             log.warning("unknown motor command %s%s", command, remainder)
@@ -126,27 +123,38 @@ class Motor:
 
     def handle_version_info(self, info: str):
         self.version = info
-        log.info("Recorded version of %s motor %s as '%s'", 
-            self.hub, self.addr, self.version)
+        log.info(
+            "Recorded version of %s motor %s as '%s'", self.hub, self.addr, self.version
+        )
 
     # Position
 
-    def handle_motion_position_info(self, info:str):
-        self.travel_pc, self.rotation_deg = travel_pc, rotation_deg = info.split('b')
-        log.info("Recorded motion of %s motor %s from %s%%, %s deg", 
-            self.hub, self.addr, self.travel_pc, self.rotation_deg)
+    def handle_motion_position_info(self, info: str):
+        self.travel_pc, self.rotation_deg = travel_pc, rotation_deg = info.split("b")
+        log.info(
+            "Recorded motion of %s motor %s from %s%%, %s deg",
+            self.hub,
+            self.addr,
+            self.travel_pc,
+            self.rotation_deg,
+        )
         # do a callback if we have one
         if self.hub.conn.callback is not None:
-            asyncio.create_task( self.hub.conn.callback(self.hub, self))
+            asyncio.create_task(self.hub.conn.callback(self.hub, self))
 
-    def handle_stop_position_info(self, info:str):
-        self.travel_pc, self.rotation_deg = travel_pc, rotation_deg = info.split('b')
-        log.info("Recorded position of %s motor %s as %s%%, %s deg", 
-            self.hub, self.addr, self.travel_pc, self.rotation_deg)
+    def handle_stop_position_info(self, info: str):
+        self.travel_pc, self.rotation_deg = travel_pc, rotation_deg = info.split("b")
+        log.info(
+            "Recorded position of %s motor %s as %s%%, %s deg",
+            self.hub,
+            self.addr,
+            self.travel_pc,
+            self.rotation_deg,
+        )
 
         # do a callback if we have one
         if self.hub.conn.callback is not None:
-            asyncio.create_task( self.hub.conn.callback(self.hub, self))
+            asyncio.create_task(self.hub.conn.callback(self.hub, self))
 
     # Motior requests
 
@@ -167,7 +175,7 @@ class Motor:
 
     async def request_move_percent(self, pc: int):
         await self.request_cmd(cmd="m", data="%03d" % pc)
-    
+
     async def request_rotate_percent(self, pc: int):
         await self.request_cmd(cmd="b", data="%03d" % pc)
 
@@ -197,6 +205,7 @@ class Motor:
 
     # Haven't bothered with the motor limits etc yet
 
+
 class AcmedaConnection(object):
     def __init__(self, device: str, timeout: int = 10, callback=None):
         """
@@ -211,7 +220,6 @@ class AcmedaConnection(object):
         # Start a watcher
         asyncio.create_task(self.monitor_updates())
 
- 
     # Low-level stuff to do with marchalling and parsing the messages
 
     async def _send_cmd(self, cmd: str) -> int:
@@ -240,7 +248,6 @@ class AcmedaConnection(object):
         """
         cmd = "%03sD%03s%s%s" % (hub, motor, cmd, data)
         return await self._send_cmd(cmd)
-
 
     async def _get_response(self) -> str:
         """
@@ -278,7 +285,6 @@ class AcmedaConnection(object):
                 print(resp)
         
         """
-        responses = []
         timeout_count = 0
         while timeout_count < 2:
             res = await self._get_response()
@@ -286,7 +292,6 @@ class AcmedaConnection(object):
                 timeout_count += 1
             else:
                 yield self._parse_response(res)
-
 
     async def monitor_updates(self):
         """
@@ -302,10 +307,9 @@ class AcmedaConnection(object):
 
                 if hub not in self.hubs:
                     self.hubs[hub] = Hub(self, hub)
-                
-                self.hubs[hub].handle_uplink(delim, resp)    
-                # print(f"  Hub {hub} response: {resp}")
 
+                self.hubs[hub].handle_uplink(delim, resp)
+                # print(f"  Hub {hub} response: {resp}")
 
     async def request_hub_info(self):
         """

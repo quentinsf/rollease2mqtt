@@ -10,6 +10,8 @@ The radio protocol is proprietary and has so far resisted attempts to record and
 
 There is, however, an official way for third-parties to interact with the hub: it has an RS485 serial port, for integration with other building management systems such as Control4.  The protocol is documented [here](https://www.rolleaseacmeda.com/docs/default-source/us/smart-home-integration/serial-protocol/Serial_Protocol_PRGM_GL_v1_3pdf.pdf?sfvrsn=26) and various cabling installation examples can be found at the bottom of [this page](https://www.rolleaseacmeda.com/au/products/product-detail/automate_serial-guide_au).
 
+![cable](docs/hub-400.jpg)
+
 This code will communicate with the hub over RS485, and listen on the network for commands to be sent to the blinds, and send status reports back. 
 
 ## You will need...
@@ -30,7 +32,7 @@ It's more verbose, but should be more reliable.   Copy the full pathname and pas
 
 **NOTE**: If you get permission errors when accessing the port, you probably need to add yourself to the 'dialout' group, and log out and back in again.
 
-## An RS485 cable
+### An RS485 cable
 
 You will need to connect your RS485 adapter to the port on the hub using what is technically a '4p4c connector'.  This is the thing traditionally used to connect phone handsets to their bases, and you should note that it is smaller than an RJ45 ethernet connector or an RJ11 phone socket connector.  I bought a phone handset cable and cut it in half, then connected it to a Wingoneer adapter.  The cable was fairly delicate, so I added plenty of strain-relief!
 
@@ -58,9 +60,13 @@ The motors controlled by a hub also have individual addresses, typically '001', 
 
 ![ios screenshot](docs/ios-400.jpg)
 
+### An MQTT broker
+
+Increasingly, this code expects to report the blinds' status to, and receive movement instructions from, MQTT topics.  This means that to run the code as it stands you'll also need to run an MQTT broker such as Mosquitto if you don't already have one.
+
 ## Running the software
 
-At present, the main.py script connects to an MQTT broker, connects to the hub, finds the motors, asks about their position, and monitors them for changes. It feeds position updates to MQTT, and receives commands from it which it then turns into up/down/stop/set_position requests. 
+At present, the main.py script connects to an MQTT broker, connects to the hub, finds the motors, asks about their position, and monitors them for changes. It feeds position updates to MQTT, and receives commands from it which it then turns into up/down/stop/set_position requests.
 
 I have managed to control my blinds from Home Assistant, where they are defined, for example, as follows:
 
@@ -85,6 +91,8 @@ The program depends on some packages in requirements.txt, so the best way to run
 and then
 
     env/bin/python3 main.py
+
+You'll want to look at the various settings at the start of main.py and configure them for your situation.
 
 More coming soon.  Contributions welcome!
 

@@ -26,16 +26,19 @@ logging.basicConfig()
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
+
 async def monitor_mqtt_requests(hub, mqtt_client):
     # Subscribe to mqtt topics for motors
 
     await mqtt_client.subscribe(
         [
-            (f'{MQTT_TOPIC_ROOT}/{motor_addr}/{MQTT_COMMAND_TOPIC}', QOS_1) for motor_addr in hub.motors
-        ] + [
-            (f'{MQTT_TOPIC_ROOT}/{motor_addr}/{MQTT_SET_POSITION_TOPIC}', QOS_1) for motor_addr in hub.motors
+            (f"{MQTT_TOPIC_ROOT}/{motor_addr}/{MQTT_COMMAND_TOPIC}", QOS_1)
+            for motor_addr in hub.motors
         ]
-
+        + [
+            (f"{MQTT_TOPIC_ROOT}/{motor_addr}/{MQTT_SET_POSITION_TOPIC}", QOS_1)
+            for motor_addr in hub.motors
+        ]
     )
 
     while True:
@@ -49,7 +52,7 @@ async def monitor_mqtt_requests(hub, mqtt_client):
 
         log.info("MQTT received %s => %s", topic, payload)
         if topic.startswith(MQTT_TOPIC_ROOT):
-            motor_addr, subtopic = topic[len(MQTT_TOPIC_ROOT)+1:].split('/')
+            motor_addr, subtopic = topic[(len(MQTT_TOPIC_ROOT) + 1):].split("/")
             log.info(f"  motor {motor_addr} subtopic {subtopic}")
             if motor_addr in hub.motors:
                 motor = hub.motors[motor_addr]
@@ -81,7 +84,7 @@ async def update_mqtt_positions(hub, mqtt_client):
                 position = str(travel_pc).encode()
                 topic = f"{MQTT_TOPIC_ROOT}/{motor_addr}/{MQTT_POSITION_TOPIC}"
                 log.debug("  Sending position %s to topic %s", position, topic)
-                message = await mqtt_client.publish( topic, position )
+                await mqtt_client.publish(topic, position)
 
 
 async def main():
@@ -95,20 +98,20 @@ async def main():
             position = str(travel_pc).encode()
             topic = f"{MQTT_TOPIC_ROOT}/{motor.addr}/{MQTT_POSITION_TOPIC}"
             log.debug("Sending updated position %s to topic %s", position, topic)
-            message = await mqtt_client.publish( topic, position )
+            await mqtt_client.publish(topic, position)
 
     conn = rollease.AcmedaConnection(device=DEVICE, callback=update_callback)
     await conn.request_hub_info()
-    
+
     await asyncio.sleep(8)
     hub_addr, hub = next(iter(conn.hubs.items()))
-    
+
     asyncio.create_task(update_mqtt_positions(hub, mqtt_client))
     asyncio.create_task(monitor_mqtt_requests(hub, mqtt_client))
-
 
     while True:
         log.info("rollease2mqtt alive and waiting")
         await asyncio.sleep(300)
+
 
 asyncio.run(main())
