@@ -54,6 +54,7 @@ async def monitor_mqtt_requests(hub, mqtt_client):
                         await hub.motors[motor].request_open()
                     elif payload == "STOP":
                         await hub.motors[motor].request_stop()
+                    await hub.motors[motor].request_current_position()
             else:
                 log.warning("Request for unknown motor {motor}")
         else:
@@ -61,14 +62,17 @@ async def monitor_mqtt_requests(hub, mqtt_client):
 
 
 async def update_mqtt_positions(hub, mqtt_client):
+    # Update the positions once per minute
     while True:
-        await asyncio.sleep(5)
+        await asyncio.sleep(60)
 
         for motor_addr in hub.motors:
-            position = str(hub.motors[motor_addr].travel_pc).encode()
-            topic = f"{MQTT_TOPIC_ROOT}/{motor_addr}/{MQTT_POSITION_TOPIC}"
-            log.debug("Sending position %s to topic %s", position, topic)
-            message = await mqtt_client.publish( topic, position )
+            travel_pc = hub.motors[motor_addr].travel_pc
+            if travel_pc is not None:
+                position = str(travel_pc).encode()
+                topic = f"{MQTT_TOPIC_ROOT}/{motor_addr}/{MQTT_POSITION_TOPIC}"
+                log.debug("Sending position %s to topic %s", position, topic)
+                message = await mqtt_client.publish( topic, position )
 
 
 async def main():
@@ -76,8 +80,15 @@ async def main():
     mqtt_client = MQTTClient(client_id="rollease2mqtt")
     await mqtt_client.connect(MQTT_URL)
 
-    conn = rollease.AcmedaConnection(device=DEVICE, timeout=3)
+    async def update_callback(hub: rollease.Hub, motor: rollease.Motor):
+        travel_pc = motor.travel_pc
+        if travel_pc is not None:
+            position = str(travel_pc).encode()
+            topic = f"{MQTT_TOPIC_ROOT}/{motor.addr}/{MQTT_POSITION_TOPIC}"
+            log.debug("Sending position %s to topic %s", position, topic)
+            message = await mqtt_client.publish( topic, position )
 
+    conn = rollease.AcmedaConnection(device=DEVICE, timeout=3, callback=update_callback)
     await conn.request_hub_info()
     
     await asyncio.sleep(8)
@@ -86,8 +97,9 @@ async def main():
     asyncio.create_task(update_mqtt_positions(hub, mqtt_client))
     asyncio.create_task(monitor_mqtt_requests(hub, mqtt_client))
 
+
     while True:
-        log.info("rollease2mqtt alive and waiiting")
+        log.info("rollease2mqtt alive and waiting")
         await asyncio.sleep(300)
 
 asyncio.run(main())

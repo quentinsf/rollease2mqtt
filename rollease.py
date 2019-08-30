@@ -135,13 +135,18 @@ class Motor:
         self.travel_pc, self.rotation_deg = travel_pc, rotation_deg = info.split('b')
         log.info("Recorded motion of %s motor %s from %s%%, %s deg", 
             self.hub, self.addr, self.travel_pc, self.rotation_deg)
-        # TODO: callback
+        # do a callback if we have one
+        if self.hub.conn.callback is not None:
+            asyncio.create_task( self.hub.conn.callback(self.hub, self))
 
     def handle_stop_position_info(self, info:str):
         self.travel_pc, self.rotation_deg = travel_pc, rotation_deg = info.split('b')
         log.info("Recorded position of %s motor %s as %s%%, %s deg", 
             self.hub, self.addr, self.travel_pc, self.rotation_deg)
-        # TODO: callback
+
+        # do a callback if we have one
+        if self.hub.conn.callback is not None:
+            asyncio.create_task( self.hub.conn.callback(self.hub, self))
 
     # Motior requests
 
@@ -193,7 +198,7 @@ class Motor:
     # Haven't bothered with the motor limits etc yet
 
 class AcmedaConnection(object):
-    def __init__(self, device: str, timeout: int = 5):
+    def __init__(self, device: str, timeout: int = 5, callback=None):
         """
         A connection to one or more Acmeda hubs on the given RS485 device.
         Timeout is how long to wait for any single response.
@@ -201,6 +206,7 @@ class AcmedaConnection(object):
         self.device = device
         self.ser = aioserial.AioSerial(port=device, baudrate=9600, timeout=timeout)
         self.hubs: Dict[str, Hub] = {}
+        self.callback = callback
 
         # Start a watcher
         asyncio.create_task(self.monitor_updates())
