@@ -207,7 +207,7 @@ class Motor:
 
 
 class AcmedaConnection(object):
-    def __init__(self, device: str, timeout: int = 10, callback=None):
+    def __init__(self, device: str, timeout: int = 30, callback=None):
         """
         A connection to one or more Acmeda hubs on the given RS485 device.
         Timeout is how long to wait for any single response.
