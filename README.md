@@ -1,6 +1,6 @@
-# Controlling Rollease Acmeda blinds from Python & Linux
+# Controlling Rollease Acmeda blinds using MQTT
 
-*My plan is to turn this into a proper gateway allowing the blinds to be controlled via MQTT.  At this stage, though, these are some experiments and notes.   This requires Python 3.7 or later, but would not be hard to backport to 3.6 if needed.*
+*This is a first attempt at a gateway allowing the blinds to be controlled via MQTT.    This requires Python 3.7 or later, but would not be hard to backport to 3.6 if needed.*
 
 ## Background
 
@@ -12,7 +12,7 @@ There is, however, an official way for third-parties to interact with the hub: i
 
 ![cable](docs/hub-400.jpg)
 
-This code will communicate with the hub over RS485, and listen on the network for commands to be sent to the blinds, and send status reports back. 
+This code will communicate with the hub over RS485, and listen on the network for MQTT commands to be sent to the blinds, and send status reports back. 
 
 ## You will need...
 
@@ -92,7 +92,7 @@ and then
 
     env/bin/python3 main.py
 
-You'll want to look at the various settings at the start of main.py and configure them for your situation.
+If you run the program with a '-h' option, you can see the various settings and configure them for your situation.
 
 More coming soon.  Contributions welcome!
 

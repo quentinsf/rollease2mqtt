@@ -1,0 +1,8 @@
+docs/*.psd
+env
+venv
+.venv
+.env
+.mypy_cache
+__pycache__
+.vscode

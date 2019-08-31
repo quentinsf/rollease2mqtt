@@ -1,3 +1,4 @@
 pyserial
 aioserial
 hbmqtt
+configargparse
