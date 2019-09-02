@@ -30,7 +30,7 @@ MQTT_COMMAND_TOPIC = "set"
 MQTT_POSITION_TOPIC = "position"
 MQTT_SET_POSITION_TOPIC = "set_position"
 
-logging.basicConfig()
+logging.basicConfig(format='%(asctime)s %(message)s')
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
