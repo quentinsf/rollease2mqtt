@@ -90,7 +90,9 @@ async def monitor_mqtt_requests(hub, mqtt_client, options):
 
 
 async def update_mqtt_positions(hub, mqtt_client, options):
-    # Update the positions once per minute
+    # Update MQTT once per minute with the most recent positions
+    # received from the hub.
+
     while True:
         await asyncio.sleep(60)
 
@@ -104,9 +106,9 @@ async def update_mqtt_positions(hub, mqtt_client, options):
 
 
 async def main():
-
     # Handle the configuration - see ConfigArgParse docs
     # for details of how things can be specified.
+
     parser = configargparse.ArgParser(
         default_config_files=[
             '/etc/rollease2mqtt.conf', 
@@ -176,11 +178,16 @@ async def main():
     await conn.request_hub_info()
 
     # Give the system a chance to read initial data
+
     log.info("Pausing for 10 secs to allow blinds to respond")
     await asyncio.sleep(10)
     hub_addr, hub = next(iter(conn.hubs.items()))
 
+    # Background tasks:
+    
+    # Periodically tell MQTT topics about current positions:
     asyncio.create_task(update_mqtt_positions(hub, mqtt_client, options))
+    # Watch for commands from MQTT and forward to hubs:
     asyncio.create_task(monitor_mqtt_requests(hub, mqtt_client, options))
 
     while True:
