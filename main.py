@@ -41,14 +41,13 @@ async def monitor_mqtt_requests(hub, mqtt_client, options):
     topics = [
         (f"{options.mqtt_topic_root}/{motor_addr}/{options.mqtt_command_topic}", QOS_1)
         for motor_addr in hub.motors
-    ]
-    + [
+    ] + [
         (f"{options.mqtt_topic_root}/{motor_addr}/{options.mqtt_set_position_topic}", QOS_1)
         for motor_addr in hub.motors
     ]
     log.info("Subscribing to MQTT topics:")
     for t in topics:
-        log.info("  " + t)
+        log.info("  " + t[0])
     await mqtt_client.subscribe(topics)
 
     while True:
