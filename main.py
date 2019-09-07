@@ -30,7 +30,7 @@ MQTT_COMMAND_TOPIC = "set"
 MQTT_POSITION_TOPIC = "position"
 MQTT_SET_POSITION_TOPIC = "set_position"
 
-logging.basicConfig()
+logging.basicConfig(format='%(asctime)s %(message)s')
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
@@ -38,16 +38,18 @@ log.setLevel(logging.INFO)
 async def monitor_mqtt_requests(hub, mqtt_client, options):
     # Subscribe to mqtt topics for motors
 
-    await mqtt_client.subscribe(
-        [
-            (f"{options.mqtt_topic_root}/{motor_addr}/{options.mqtt_command_topic}", QOS_1)
-            for motor_addr in hub.motors
-        ]
-        + [
-            (f"{options.mqtt_topic_root}/{motor_addr}/{options.mqtt_set_position_topic}", QOS_1)
-            for motor_addr in hub.motors
-        ]
-    )
+    topics = [
+        (f"{options.mqtt_topic_root}/{motor_addr}/{options.mqtt_command_topic}", QOS_1)
+        for motor_addr in hub.motors
+    ]
+    + [
+        (f"{options.mqtt_topic_root}/{motor_addr}/{options.mqtt_set_position_topic}", QOS_1)
+        for motor_addr in hub.motors
+    ]
+    log.info("Subscribing to MQTT topics:")
+    for t in topics:
+        log.info("  " + t)
+    await mqtt_client.subscribe(topics)
 
     while True:
         log.debug("Waiting for MQTT messages")
@@ -168,8 +170,8 @@ async def main():
     await conn.request_hub_info()
 
     # Give the system a chance to read initial data
-
-    await asyncio.sleep(5)
+    log.info("Pausing for 10 secs to allow blinds to respond")
+    await asyncio.sleep(10)
     hub_addr, hub = next(iter(conn.hubs.items()))
 
     asyncio.create_task(update_mqtt_positions(hub, mqtt_client, options))
