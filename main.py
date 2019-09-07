@@ -36,7 +36,14 @@ log.setLevel(logging.INFO)
 
 
 async def monitor_mqtt_requests(hub, mqtt_client, options):
-    # Subscribe to mqtt topics for motors
+    # Subscribe to mqtt topics for the hub's motors.
+    # At present, this only happens once, so make sure that the 
+    # hub has had time to discover its motors before calling this.
+    # Ideally, we would keep a record of subscribed topics, and 
+    # subscribe to new ones when new motors were discovered.
+    #
+    # Then monitor these topics for open, close, stop and move
+    # requests and forward them to the motors.
 
     topics = [
         (f"{options.mqtt_topic_root}/{motor_addr}/{options.mqtt_command_topic}", QOS_1)

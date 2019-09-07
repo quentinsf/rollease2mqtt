@@ -56,6 +56,8 @@ class Hub:
         if addr in self.motors:
             return
         self.motors[addr] = Motor(self, addr)
+        # TODO: Ideally here, we need a way to inform calling parties
+        # that a new motor has been discovered.
 
     def handle_uplink(self, delim: str, resp: str):
         """
@@ -211,6 +213,8 @@ class AcmedaConnection(object):
         """
         A connection to one or more Acmeda hubs on the given RS485 device.
         Timeout is how long to wait for any single response.
+        A callback, if given, will be called as a task with parameters
+        (hub, motor) when an update is detected.
         """
         self.device = device
         self.ser = aioserial.AioSerial(port=device, baudrate=9600, timeout=timeout)
