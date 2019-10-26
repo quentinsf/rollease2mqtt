@@ -96,6 +96,20 @@ If you run the program with a '-h' option, you can see the various settings and 
 
 More coming soon.  Contributions welcome!
 
+## A note about timing
+
+I found that if I tried to send commands to multiple blinds in quick success, there were problems.  In Home Assistant, my workaround was to insert short delays (say, a couple of seconds) between the requests:
+
+    - service: cover.open_cover
+      entity_id: cover.kitchen_window
+
+    - delay:
+        seconds: 2
+
+    - service: cover.open_cover
+      entity_id: cover.bathroom_window
+
+
 Quentin Stafford-Fraser - https://quentinsf.com - Aug 2019
 
 
