@@ -8,7 +8,7 @@ The Rollease Acmeda motorised blinds (or 'shades') can be controlled directly wi
 
 The radio protocol is proprietary and has so far resisted attempts to record and playback its signals. There is also no public API that I am aware of for accessing the hub over the local network. A project in the OpenHab community has been attempting to reverse-engineer the network protocols, but with only partial success.
 
-There is, however, an official way for third-parties to interact with the hub: it has an RS485 serial port, for integration with other building management systems such as Control4.  The protocol is documented [here](https://www.rolleaseacmeda.com/docs/default-source/us/smart-home-integration/serial-protocol/Serial_Protocol_PRGM_GL_v1_3pdf.pdf?sfvrsn=26) and various cabling installation examples can be found at the bottom of [this page](https://www.rolleaseacmeda.com/au/products/product-detail/automate_serial-guide_au).
+There is, however, an official way for third-parties to interact with the hub: it has an RS485 serial port, for integration with other building management systems such as Control4.  The protocol is documented [here](https://www.rolleaseacmeda.com/docs/default-source/us/smart-home-integration/serial-protocol/Serial_Protocol_PRGM_GL_v1_3pdf.pdf) and various cabling installation examples can be found at the bottom of [this page](https://www.rolleaseacmeda.com/au/products/product-detail/automate_serial-guide_au).
 
 ![cable](https://raw.githubusercontent.com/quentinsf/rollease2mqtt/master/docs/hub-400.jpg)
 
@@ -73,9 +73,9 @@ I have managed to control my blinds from Home Assistant, where they are defined,
     cover
       - platform: mqtt
         name: "Bedroom front"
-        command_topic: "home-assistant/cover/007/set"
-        position_topic: "home-assistant/cover/007/position"
-        set_position_topic: "home-assistant/cover/007/set_position"
+        command_topic: "homeassistant/cover/007/set"
+        position_topic: "homeassistant/cover/007/position"
+        set_position_topic: "homeassistant/cover/007/set_position"
         payload_open: "OPEN"
         payload_close: "CLOSE"
         payload_stop: "STOP"

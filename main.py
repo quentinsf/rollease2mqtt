@@ -25,7 +25,7 @@ from typing import Optional, Tuple, List, Dict
 
 DEVICE = "/dev/ttyUSB0"
 MQTT_URL = "mqtt://user:password@localhost"
-MQTT_TOPIC_ROOT = "home-assistant/cover"  # followed by /motor_addr/command
+MQTT_TOPIC_ROOT = "homeassistant/cover"  # followed by /motor_addr/command
 MQTT_COMMAND_TOPIC = "set"
 MQTT_POSITION_TOPIC = "position"
 MQTT_SET_POSITION_TOPIC = "set_position"
