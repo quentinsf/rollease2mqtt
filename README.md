@@ -94,7 +94,15 @@ and then
 
 If you run the program with a '-h' option, you can see the various settings and configure them for your situation.
 
-More coming soon.  Contributions welcome!
+## Running under HomeAssistant
+
+The files `Dockerfile`, `config.json` and `run.sh` mean that this can be run as a HomeAssistant add-on.  I haven't put it in any of the standard repositories yet, though, so you need to install it as a 'local add-on'.  Full details are in the [Making your first add-on](https://developers.home-assistant.io/docs/en/hassio_addon_tutorial.html) tutorial, but roughly:
+
+* There should be a local addons folder in your Home Assistant system. Exactly how you access this will depend on your  installation - in my Hassio world, from the root machine, the directory is at `/data/hassio/addons/local`, but if you use the Samba Share add-on in Hassio, then the local addons folder will be available as a share called 'addons' from your hassio machine.
+
+* Within this, create a 'rollease2mqtt' directory, in which you put the contents of this repository.  The Dockerfile should be `rollease2mqtt/Dockerfile` within the local addons directory, for example.
+
+* In your Home Assistant GUI, go to the Hass.io section, select the 'Add-on Store' tab, and you should now have a 'Local Add-ons' section, with 'Rollease Acmeda MQTT gateway' listed.  You can install it and configure it from there.
 
 ## A note about timing
 
@@ -108,6 +116,9 @@ I found that if I tried to send commands to multiple blinds in quick success, th
 
     - service: cover.open_cover
       entity_id: cover.bathroom_window
+
+
+More coming soon.  Contributions welcome!
 
 
 Quentin Stafford-Fraser - https://quentinsf.com - Aug 2019
