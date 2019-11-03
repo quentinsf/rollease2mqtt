@@ -10,7 +10,7 @@ The radio protocol is proprietary and has so far resisted attempts to record and
 
 There is, however, an official way for third-parties to interact with the hub: it has an RS485 serial port, for integration with other building management systems such as Control4.  The protocol is documented [here](https://www.rolleaseacmeda.com/docs/default-source/us/smart-home-integration/serial-protocol/Serial_Protocol_PRGM_GL_v1_3pdf.pdf) and various cabling installation examples can be found at the bottom of [this page](https://www.rolleaseacmeda.com/au/products/product-detail/automate_serial-guide_au).
 
-![cable](https://raw.githubusercontent.com/quentinsf/rollease2mqtt/master/docs/hub-400.jpg)
+![cable](https://raw.githubusercontent.com/quentinsf/rollease2mqtt/master/rollease2mqtt/docs/hub-400.jpg)
 
 This code will communicate with the hub over RS485, and listen on the network for MQTT commands to be sent to the blinds, and send status reports back. 
 
@@ -36,13 +36,13 @@ It's more verbose, but should be more reliable.   Copy the full pathname and pas
 
 You will need to connect your RS485 adapter to the port on the hub using what is technically a '4p4c connector'.  This is the thing traditionally used to connect phone handsets to their bases, and you should note that it is smaller than an RJ45 ethernet connector or an RJ11 phone socket connector.  I bought a phone handset cable and cut it in half, then connected it to a Wingoneer adapter.  The cable was fairly delicate, so I added plenty of strain-relief!
 
-![cable](https://raw.githubusercontent.com/quentinsf/rollease2mqtt/master/docs/cable-400.jpg)
+![cable](https://raw.githubusercontent.com/quentinsf/rollease2mqtt/master/rollease2mqtt/docs/cable-400.jpg)
 
 Yes, I know, it's not pretty, but it does the job well!
 
-![wingoneer](https://raw.githubusercontent.com/quentinsf/rollease2mqtt/master/docs/wingoneer-400.jpg)
+![wingoneer](https://raw.githubusercontent.com/quentinsf/rollease2mqtt/master/rollease2mqtt/docs/wingoneer-400.jpg)
 
-![connector](https://raw.githubusercontent.com/quentinsf/rollease2mqtt/master/docs/connector-400.jpg)
+![connector](https://raw.githubusercontent.com/quentinsf/rollease2mqtt/master/rollease2mqtt/docs/connector-400.jpg)
 
 When making up RS485 cables, it's worth noting that some manufacturers use letters A & B to describe the two signal lines, and some use '+' and '-', but not always consistently.  You should be safe to swap '+' and '-' if your first attempt doesn't succeed.  Ground, however, is always ground!  I debugged mine by running minicom or miniterm.py to look at the port, e.g.
 
@@ -58,7 +58,7 @@ which would indicate that the ID (or 'address') of your hub is '626'.  (It's pos
 
 The motors controlled by a hub also have individual addresses, typically '001', '002' etc.  If you have the phone app (which is called 'Automate' - how many different brands do these guys need?), you can go to the edit screen for one of your blinds and see the same information there:
 
-![ios screenshot](https://raw.githubusercontent.com/quentinsf/rollease2mqtt/master/docs/ios-400.jpg)
+![ios screenshot](https://raw.githubusercontent.com/quentinsf/rollease2mqtt/master/rollease2mqtt/docs/ios-400.jpg)
 
 ### An MQTT broker
 
