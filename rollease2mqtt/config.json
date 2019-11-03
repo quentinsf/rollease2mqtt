@@ -3,7 +3,7 @@
   "version": "0.3",
   "slug": "rollease2mqtt",
   "description": "An MQTT gateway for Rollease blinds",
-  "url": "https://github.com/quentinsf/rollease-acmeda",
+  "url": "https://github.com/quentinsf/rollease2mqtt",
   "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
   "startup": "before",
   "boot": "auto",
@@ -15,5 +15,6 @@
     "mqtt_url": "str",
     "device": "str"
   },
-  "auto_uart": true
+  "auto_uart": true,
+  "image": "quentinsf/image-{arch}-rollease2mqtt"
 }
