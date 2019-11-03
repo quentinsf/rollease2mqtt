@@ -96,6 +96,9 @@ If you run the program with a '-h' option, you can see the various settings and 
 
 ## Running under HomeAssistant
 
+_This should soon be unnecessary, as we're approaching the point where a standard add-on repository will be available._
+
+
 The files `Dockerfile`, `config.json` and `run.sh` mean that this can be run as a HomeAssistant add-on.  I haven't put it in any of the standard repositories yet, though, so you need to install it as a 'local add-on'.  Full details are in the [Making your first add-on](https://developers.home-assistant.io/docs/en/hassio_addon_tutorial.html) tutorial, but roughly:
 
 * There should be a local addons folder in your Home Assistant system. Exactly how you access this will depend on your  installation - in my Hassio world, from the root machine, the directory is at `/data/hassio/addons/local`, but if you use the Samba Share add-on in Hassio, then the local addons folder will be available as a share called 'addons' from your hassio machine.
@@ -104,7 +107,9 @@ The files `Dockerfile`, `config.json` and `run.sh` mean that this can be run as 
 
 * In your Home Assistant GUI, go to the Hass.io section, select the 'Add-on Store' tab, and you should now have a 'Local Add-ons' section, with 'Rollease Acmeda MQTT gateway' listed.  You can install it and configure it from there.
 
-## A note about timing
+## Known issues
+
+### Timing
 
 I found that if I tried to send commands to multiple blinds in quick success, there were problems.  In Home Assistant, my workaround was to insert short delays (say, a couple of seconds) between the requests:
 
@@ -116,6 +121,14 @@ I found that if I tried to send commands to multiple blinds in quick success, th
 
     - service: cover.open_cover
       entity_id: cover.bathroom_window
+
+Since then, I've included an automatic 1-second delay between successive motor requests, which may be sufficient and you may not need this, or need less.  But if you find commands are being missed, give this a try.
+
+### Initialisation
+
+When the software starts up, it asks the hub to ask for all the motors that are present.  That list is never updated, so if a blind is offline for any reason when the start-up happens (e.g. because of a low battery, or because it's just too slow in responding), it will not be found.
+
+For now, the solution is to restart the software.
 
 
 More coming soon.  Contributions welcome!
