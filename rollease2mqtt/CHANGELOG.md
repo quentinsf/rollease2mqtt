@@ -1,3 +1,9 @@
+## 0.4 - 2019-11-03
+
+* Starting to be structured more like a standard Hassio addon, with prebuilt Docker images.
+
+* Documentation updates.
+
 ## 0.3 - 2019-11-03
 
 Changelog starts.
