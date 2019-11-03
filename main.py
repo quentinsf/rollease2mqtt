@@ -83,6 +83,9 @@ async def monitor_mqtt_requests(hub, mqtt_client, options):
                     await motor.request_move_percent(int(payload))
                 else:
                     log.warning("Unexpected topic: %s, payload %s", topic, payload)
+
+                # Pause to reduce RS485 collisions
+                await asyncio.sleep(1)
             else:
                 log.warning("Request for unknown motor {motor}")
         else:
