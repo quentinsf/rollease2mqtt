@@ -126,14 +126,11 @@ Since then, I've included an automatic 1-second delay between successive motor r
 
 ### Initialisation
 
-When the software starts up, it asks the hub to ask for all the motors that are present.  That list is never updated, so if a blind is offline for any reason when the start-up happens (e.g. because of a low battery, or because it's just too slow in responding), it will not be found.
-
-For now, the solution is to restart the software.
-
+When the software starts up, it asks the hub to ask for all the motors that are present. 
 
 More coming soon.  Contributions welcome!
 
 
-Quentin Stafford-Fraser - https://quentinsf.com - Oct 2019
+Quentin Stafford-Fraser - https://quentinsf.com - Dec 2019
 
 

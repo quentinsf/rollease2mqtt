@@ -47,7 +47,7 @@ class Hub:
         return f"Hub {self.addr}"
 
     # This is a motor command, but it's at this level because
-    # it allows use to find the motors and register them.
+    # it allows us to find the motors and register them.
 
     async def request_motor_info(self, motor="000", cmd="v", data="?"):
         await self.conn.send_motor_cmd(self.addr, motor, cmd, data)

@@ -93,11 +93,26 @@ async def monitor_mqtt_requests(hub, mqtt_client, options):
 
 
 async def update_mqtt_positions(hub, mqtt_client, options):
-    # Update MQTT once per minute with the most recent positions
-    # received from the hub.
+    # Every 60 secs, update MQTT with the most recent positions
+    # received from the hub.  These are often updated by movement commands etc.
+    # Every 10 mins, request the positions explicitly.  I don't do this more 
+    # often because I'm not sure of the effect on battery life.
 
+    minute_counter = 0
     while True:
         await asyncio.sleep(60)
+
+        minute_counter += 1
+        if minute_counter >= int(options.refresh_mins):
+            log.info("Requesting motor info")
+            hub.request_motor_info()
+            await asyncio.sleep(5)
+
+            log.info("Requesting current motor positions")
+            for motor in hub.motors.values():
+                motor.request_current_position()
+                await asyncio.sleep(1)
+            await asyncio.sleep(5)
 
         for motor_addr in hub.motors:
             travel_pc = hub.motors[motor_addr].travel_pc
@@ -156,6 +171,12 @@ async def main():
         help="MQTT position-reporting topic, under [topic_root]/[motor]/."
     ) 
     
+    parser.add(
+        '-rm', '--refresh_mins',
+        type=int, default=10,
+        help="How often to ask hub in background for motor updates (default: every 10 mins)."
+    ) 
+
     options = parser.parse_args()
 
     ## Now connect to MQTT
