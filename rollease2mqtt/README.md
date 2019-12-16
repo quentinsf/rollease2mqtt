@@ -96,10 +96,14 @@ If you run the program with a '-h' option, you can see the various settings and 
 
 ## Running under HomeAssistant
 
-_This should soon be unnecessary, as we're approaching the point where a standard add-on repository will be available._
+The files `Dockerfile`, `config.json` and `run.sh` mean that this can be run as a HomeAssistant add-on. 
+
+It can be installed from the Hass.io add-on store, if you add the repository URL https://github.com/quentinsf/rollease2mqtt to your configuration.
 
 
-The files `Dockerfile`, `config.json` and `run.sh` mean that this can be run as a HomeAssistant add-on.  I haven't put it in any of the standard repositories yet, though, so you need to install it as a 'local add-on'.  Full details are in the [Making your first add-on](https://developers.home-assistant.io/docs/en/hassio_addon_tutorial.html) tutorial, but roughly:
+### Local development
+
+If you wish to modify the code yourself, you can instead install it as a 'local add-on'.  Full details are in the [Making your first add-on](https://developers.home-assistant.io/docs/en/hassio_addon_tutorial.html) tutorial, but roughly:
 
 * There should be a local addons folder in your Home Assistant system. Exactly how you access this will depend on your  installation - in my Hassio world, from the root machine, the directory is at `/data/hassio/addons/local`, but if you use the Samba Share add-on in Hassio, then the local addons folder will be available as a share called 'addons' from your hassio machine.
 
@@ -126,7 +130,7 @@ Since then, I've included an automatic 1-second delay between successive motor r
 
 ### Initialisation
 
-When the software starts up, it asks the hub to ask for all the motors that are present. 
+When the software starts up, it asks the hub to ask for all the motors that are present.   New motors may be found if they come online after this, but removed motors will not be deleted unless you restart the add-on.
 
 More coming soon.  Contributions welcome!
 
