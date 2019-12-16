@@ -104,6 +104,7 @@ async def update_mqtt_positions(hub, mqtt_client, options):
 
         minute_counter += 1
         if minute_counter >= int(options.refresh_mins):
+
             log.info("Requesting motor info")
             await hub.request_motor_info()
             # give them a chance to respond
@@ -114,6 +115,9 @@ async def update_mqtt_positions(hub, mqtt_client, options):
                 await motor.request_current_position()
                 await asyncio.sleep(1)
             await asyncio.sleep(5)
+
+            minute_counter = 0
+
 
         for motor_addr in hub.motors:
             travel_pc = hub.motors[motor_addr].travel_pc
