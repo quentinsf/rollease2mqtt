@@ -1,3 +1,7 @@
+## 0.7 - 2019-12-16
+
+* Another bug-fix: apologies!
+
 ## 0.6 - 2019-12-16
 
 * Fix a bug in the periodic-update code.

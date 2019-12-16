@@ -49,10 +49,10 @@ class Hub:
     # This is a motor command, but it's at this level because
     # it allows us to find the motors and register them.
 
-    async def request_motor_info(self, motor="000", cmd="v", data="?"):
+    async def request_motor_info(self, motor: str = "000", cmd: str = "v", data: str ="?"):
         await self.conn.send_motor_cmd(self.addr, motor, cmd, data)
 
-    def register_motor(self, addr):
+    def register_motor(self, addr: str):
         if addr in self.motors:
             return
         self.motors[addr] = Motor(self, addr)
