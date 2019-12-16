@@ -35,7 +35,11 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
 
-async def monitor_mqtt_requests(hub, mqtt_client, options):
+async def monitor_mqtt_requests(
+    hub: rollease.Hub, 
+    mqtt_client: MQTTClient, 
+    options: configargparse.Namespace
+):
     # Subscribe to mqtt topics for the hub's motors.
     # At present, this only happens once, so make sure that the 
     # hub has had time to discover its motors before calling this.
@@ -92,7 +96,11 @@ async def monitor_mqtt_requests(hub, mqtt_client, options):
             log.error("Topic not under expected topic root")
 
 
-async def update_mqtt_positions(hub, mqtt_client, options):
+async def update_mqtt_positions(
+    hub: rollease.Hub, 
+    mqtt_client: MQTTClient, 
+    options: configargparse.Namespace
+):
     # Every 60 secs, update MQTT with the most recent positions
     # received from the hub.  These are often updated by movement commands etc.
     # Every 10 mins, request the positions explicitly.  I don't do this more 
