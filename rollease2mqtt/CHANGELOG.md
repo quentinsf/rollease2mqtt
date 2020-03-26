@@ -1,3 +1,14 @@
+# Change log for rollease2mqtt
+
+## 0.8 - 2020-03-26
+
+* My new hub seems to have an alternative packet format where multiple responses can be returned at once in the form '!resp1!resp2!resp3;'.  Handle this.
+
+* Report but don't die if serial format appears incorrect.
+
+* Logs now have timestamps.
+
+
 ## 0.7 - 2019-12-16
 
 * Another bug-fix: apologies!
