@@ -1,3 +1,5 @@
+#! /bin/bash
+
 CONFIG_PATH=/data/options.json
 
 DEVICE="$(jq --raw-output '.device' $CONFIG_PATH)"
