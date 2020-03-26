@@ -103,7 +103,10 @@ It can be installed from the Hass.io add-on store, if you add the repository URL
 
 ### Local development
 
-If you wish to modify the code yourself, you can instead install it as a 'local add-on'.  Full details are in the [Making your first add-on](https://developers.home-assistant.io/docs/en/hassio_addon_tutorial.html) tutorial, but roughly:
+If you wish to experiment with changes to the code, the easiest first stage may be to run `main.py` by hand on the machine connected to the hub.  It will still communicate to the MQTT hub, and if you're using Home Assistant and it's appropriately configured to talk MQTT, things should still work.
+
+
+As an alternative, you can create your own version and install it as a 'local add-on'.  Full details are in the [Making your first add-on](https://developers.home-assistant.io/docs/en/hassio_addon_tutorial.html) tutorial, but roughly:
 
 * There should be a local addons folder in your Home Assistant system. Exactly how you access this will depend on your  installation - in my Hassio world, from the root machine, the directory is at `/data/hassio/addons/local`, but if you use the Samba Share add-on in Hassio, then the local addons folder will be available as a share called 'addons' from your hassio machine.
 
@@ -135,6 +138,6 @@ When the software starts up, it asks the hub to ask for all the motors that are 
 More coming soon.  Contributions welcome!
 
 
-Quentin Stafford-Fraser - https://quentinsf.com - Dec 2019
+Quentin Stafford-Fraser - https://quentinsf.com - Mar 2020
 
 
