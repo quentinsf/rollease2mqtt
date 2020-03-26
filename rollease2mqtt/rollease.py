@@ -274,7 +274,7 @@ class AcmedaConnection(object):
             hub, delim, resp = resp[1:4], resp[4], resp[5:-1]
             return (hub, delim, resp)
         else:
-            raise FormatError("Didn't find response delimited by '!' and ';'")
+            raise FormatError("Didn't find response delimited by '!' and ';' :'{}'".format(resp))
 
     async def response_iter(self, timeouts=10):
         """
