@@ -11,7 +11,7 @@ from typing import Optional, Tuple, List, Dict
 
 DEVICE = "/dev/serial/by-id/usb-Silicon_Labs_CP2104_USB_to_UART_Bridge_Controller_018DF044-if00-port0"
 
-logging.basicConfig()
+logging.basicConfig(format='%(asctime)-15s %(levelname)s:%(name)s %(message)s')
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
@@ -111,7 +111,7 @@ class Motor:
 
     def handle_uplink(self, command: str, remainder: str):
         if command == "U":
-            log.error("Can't get position/stroke not set")
+            log.error("Can't get position/stroke not set on motor %s", self.addr)
         elif command in (">", "<") and remainder is not None:
             self.handle_motion_position_info(remainder)
         elif command == "r" and remainder is not None:
@@ -258,21 +258,25 @@ class AcmedaConnection(object):
         Get the next response (up to a semicolon) as a string.
         Returns None on a timeout or invalid response.
         """
-        resp = await self.ser.read_until_async(b";")
+        resp = await self.ser.read_until_async(expected=b";", size=100)
         log.debug("  got %s", resp)
         if resp is None:
             raise TimeoutError("Timed out in _get_response")
         return resp.decode()
 
-    def _parse_response(self, resp: str) -> Tuple[str, str, str]:
+    def _parse_response(self, resp: str) -> List[Tuple[str, str, str]]:
         """
-        Split up a top-level response into the hub address,
+        Split up a top-level response or responses into the hub address,
         the delimiter, and the bit after the delimiter.
-        Returns hub, delim, response.
+        It appears that some hubs can return several responses, each 
+        beginning with a !, and only have a single terminating semicolon.
+        We therefore return a list of tuples.
+        Returns [ (hub, delim, response),... ].
         """
         if resp.startswith("!") and resp.endswith(";"):
+            bits = resp[1:-1].split("!")
             hub, delim, resp = resp[1:4], resp[4], resp[5:-1]
-            return (hub, delim, resp)
+            return [(b[0:3], b[3], b[4:]) for b in bits]
         else:
             raise FormatError("Didn't find response delimited by '!' and ';'")
 
@@ -295,7 +299,8 @@ class AcmedaConnection(object):
             if not res:
                 timeout_count += 1
             else:
-                yield self._parse_response(res)
+                for r in self._parse_response(res):
+                    yield r
 
     async def monitor_updates(self):
         """
@@ -305,15 +310,19 @@ class AcmedaConnection(object):
 
         while True:
             log.info("Watching for serial updates")
-            async for hub, delim, resp in self.response_iter():
-                # If this is a hub we haven't seen before,
-                # create it.
+            try:
+                async for hub, delim, resp in self.response_iter():
+                    # If this is a hub we haven't seen before,
+                    # create it.
 
-                if hub not in self.hubs:
-                    self.hubs[hub] = Hub(self, hub)
+                    if hub not in self.hubs:
+                        self.hubs[hub] = Hub(self, hub)
 
-                self.hubs[hub].handle_uplink(delim, resp)
-                # print(f"  Hub {hub} response: {resp}")
+                    self.hubs[hub].handle_uplink(delim, resp)
+                    # print(f"  Hub {hub} response: {resp}")
+            except FormatError:
+                log.exception("Format error while watching for serial updates - pausing before restart")
+                await asyncio.sleep(5)
 
     async def request_hub_info(self):
         """
