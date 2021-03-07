@@ -8,7 +8,7 @@ ENV LANG C.UTF-8
 
 COPY . /
 
-RUN apk add --no-cache python3 jq
+RUN apk add --no-cache python3 py3-pip jq
 RUN python3 -m pip install -r /requirements.txt
 
 WORKDIR /
