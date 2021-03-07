@@ -1,5 +1,9 @@
 # Change log for rollease2mqtt
 
+## 0.9 - 2021-03-07
+
+* Update add-on config to use new name for auto_uart, and to set startup type to 'services'.
+
 ## 0.8 - 2020-03-26
 
 * My new hub seems to have an alternative packet format where multiple responses can be returned at once in the form '!resp1!resp2!resp3;'.  Handle this.
