@@ -1,6 +1,6 @@
 {
   "name": "Rollease Acmeda MQTT gateway",
-  "version": "0.8",
+  "version": "0.9",
   "slug": "rollease2mqtt",
   "description": "An MQTT gateway for Rollease blinds",
   "url": "https://github.com/quentinsf/rollease2mqtt",
