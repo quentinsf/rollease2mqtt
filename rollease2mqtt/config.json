@@ -1,11 +1,10 @@
 {
   "name": "Rollease Acmeda MQTT gateway",
-  "version": "0.9.1",
+  "version": "0.9.3",
   "slug": "rollease2mqtt",
   "description": "An MQTT gateway for Rollease blinds",
   "url": "https://github.com/quentinsf/rollease2mqtt",
-  "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
-  "startup": "services",
+  "arch": ["amd64", "i386", "armhf", "armv7", "aarch64"],
   "boot": "auto",
   "options": {
     "mqtt_url": "mqtt://hassio-mqtt:9qaHD6@192.168.0.31",
@@ -14,7 +13,8 @@
   },
   "schema": {
     "mqtt_url": "str",
-    "device": "str"
+    "device": "str",
+    "refresh_mins": "int?"
   },
   "uart": true,
   "image": "quentinsf/image-{arch}-rollease2mqtt"

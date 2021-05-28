@@ -14,8 +14,8 @@ import time
 
 import configargparse
 
-from hbmqtt.client import MQTTClient, ClientException
-from hbmqtt.mqtt.constants import QOS_1, QOS_2
+from amqtt.client import MQTTClient, ClientException
+from amqtt.mqtt.constants import QOS_1, QOS_2
 
 from typing import Optional, Tuple, List, Dict
 
@@ -36,14 +36,14 @@ log.setLevel(logging.INFO)
 
 
 async def monitor_mqtt_requests(
-    hub: rollease.Hub, 
-    mqtt_client: MQTTClient, 
+    hub: rollease.Hub,
+    mqtt_client: MQTTClient,
     options: configargparse.Namespace
 ):
     # Subscribe to mqtt topics for the hub's motors.
-    # At present, this only happens once, so make sure that the 
+    # At present, this only happens once, so make sure that the
     # hub has had time to discover its motors before calling this.
-    # Ideally, we would keep a record of subscribed topics, and 
+    # Ideally, we would keep a record of subscribed topics, and
     # subscribe to new ones when new motors were discovered.
     #
     # Then monitor these topics for open, close, stop and move
@@ -97,13 +97,13 @@ async def monitor_mqtt_requests(
 
 
 async def update_mqtt_positions(
-    hub: rollease.Hub, 
-    mqtt_client: MQTTClient, 
+    hub: rollease.Hub,
+    mqtt_client: MQTTClient,
     options: configargparse.Namespace
 ):
     # Every 60 secs, update MQTT with the most recent positions
     # received from the hub.  These are often updated by movement commands etc.
-    # Every 10 mins, request the positions explicitly.  I don't do this more 
+    # Every 10 mins, request the positions explicitly.  I don't do this more
     # often because I'm not sure of the effect on battery life.
 
     minute_counter = 0
@@ -126,7 +126,6 @@ async def update_mqtt_positions(
 
             minute_counter = 0
 
-
         for motor_addr in hub.motors:
             travel_pc = hub.motors[motor_addr].travel_pc
             if travel_pc is not None:
@@ -142,15 +141,15 @@ async def main():
 
     parser = configargparse.ArgParser(
         default_config_files=[
-            '/etc/rollease2mqtt.conf', 
+            '/etc/rollease2mqtt.conf',
             'rollease2mqtt.conf'
         ],
-        config_file_parser_class = configargparse.YAMLConfigFileParser,
-        formatter_class = configargparse.ArgumentDefaultsHelpFormatter 
+        config_file_parser_class=configargparse.YAMLConfigFileParser,
+        formatter_class=configargparse.ArgumentDefaultsHelpFormatter
     )
     parser.add(
-        '-c', '--config', 
-        required=False, is_config_file=True, 
+        '-c', '--config',
+        required=False, is_config_file=True,
         help='alternative config file'
     )
     parser.add(
@@ -182,17 +181,17 @@ async def main():
         '-tp', '--mqtt_position_topic',
         default=MQTT_POSITION_TOPIC,
         help="MQTT position-reporting topic, under [topic_root]/[motor]/."
-    ) 
-    
+    )
+
     parser.add(
         '-rm', '--refresh_mins',
         type=int, default=10,
         help="How often to ask hub in background for motor updates (default: every 10 mins)."
-    ) 
+    )
 
     options = parser.parse_args()
 
-    ## Now connect to MQTT
+    # Now connect to MQTT
 
     mqtt_client = MQTTClient(client_id="rollease2mqtt")
     log.info("Connecting to MQTT broker on %s", options.mqtt_url)
@@ -221,15 +220,19 @@ async def main():
     hub_addr, hub = next(iter(conn.hubs.items()))
 
     # Background tasks:
-    
-    # Periodically tell MQTT topics about current positions:
-    asyncio.create_task(update_mqtt_positions(hub, mqtt_client, options))
-    # Watch for commands from MQTT and forward to hubs:
-    asyncio.create_task(monitor_mqtt_requests(hub, mqtt_client, options))
 
-    while True:
+    # Periodically tell MQTT topics about current positions:
+    report_task = asyncio.create_task(update_mqtt_positions(hub, mqtt_client, options))
+    # Watch for commands from MQTT and forward to hubs:
+    command_task = asyncio.create_task(monitor_mqtt_requests(hub, mqtt_client, options))
+
+    await asyncio.sleep(10)
+
+    while not report_task.done() and not command_task.done():
         log.info("rollease2mqtt alive and waiting")
         await asyncio.sleep(300)
+    
+    log.warning("One of the monitoring tasks died.  Exiting")
 
 
 asyncio.run(main())

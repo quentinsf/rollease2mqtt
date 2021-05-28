@@ -73,6 +73,8 @@ class Hub:
         elif delim == "D":
             log.debug("Received motor message %s %s", delim, resp)
             self.handle_motor_info(resp)
+        else:
+            log.info("Unhandled delimiter: '%s' followed by '%s'", delim, resp)
 
     def _parse_motor_info(self, info: str) -> Tuple[str, str, str]:
         motor_addr = info[:3]
@@ -268,22 +270,21 @@ class AcmedaConnection(object):
         """
         Split up a top-level response or responses into the hub address,
         the delimiter, and the bit after the delimiter.
-        It appears that some hubs can return several responses, each 
+        It appears that some hubs can return several responses, each
         beginning with a !, and only have a single terminating semicolon.
         We therefore return a list of tuples.
         Returns [ (hub, delim, response),... ].
         """
-        if resp.startswith("!") and resp.endswith(";"):
-            bits = resp[1:-1].split("!")
-            hub, delim, resp = resp[1:4], resp[4], resp[5:-1]
-            return [(b[0:3], b[3], b[4:]) for b in bits]
-        else:
+        if not resp.startswith("!") and resp.endswith(";"):
             raise FormatError("Didn't find response delimited by '!' and ';' :'{}'".format(resp))
+        bits = resp[1:-1].split("!")
+        hub, delim, resp = resp[1:4], resp[4], resp[5:-1]
+        return [(b[0:3], b[3], b[4:]) for b in bits]
 
     async def response_iter(self, timeouts=10):
         """
         An iterator for retrieving possibly several responses.
-        We don't usually have a way to know how many responses to 
+        We don't usually have a way to know how many responses to
         wait for, so we have to use a timeout.
         'timeouts' specifies the number of times we'll wait for the
         connection's standard timeout before deciding we're done.
@@ -291,7 +292,7 @@ class AcmedaConnection(object):
 
             async for resp in self.response_iter():
                 print(resp)
-        
+
         """
         timeout_count = 0
         while timeout_count < 2:

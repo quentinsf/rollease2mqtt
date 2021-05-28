@@ -1,4 +1,5 @@
 pyserial
 aioserial
-hbmqtt
+amqtt
 configargparse
+websockets
